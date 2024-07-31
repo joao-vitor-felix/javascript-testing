@@ -1,5 +1,6 @@
+/// <reference types="vitest/globals" />
+
 import { factorial, fizzBuzz, max } from "../src/intro"
-import { expect } from "vitest"
 
 describe('max', () => {
   it('should return a when higher than b', () => {
