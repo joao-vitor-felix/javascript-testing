@@ -1,6 +1,6 @@
 /// <reference types="vitest/globals" />
 
-import { getCoupons, validateUserInput } from "../src/core"
+import { canDrive, getCoupons, isValidUsername, validateUserInput } from "../src/core"
 
 describe('getCoupons', () => {
   it('should be a not empty array', () => {
@@ -67,5 +67,50 @@ describe('validateUserInput', () => {
   it('should return a success message if all parameters are correct', () => {
     const result = validateUserInput('caio', 20)
     expect(result).toMatch(/success/i)
+  })
+})
+
+describe('isValidUsername', () => {
+  const minLength = 5;
+  const maxLength = 15;
+  
+  it('should return false if username is not on min length range', () => {
+   const result = isValidUsername('a'.repeat(minLength - 1))
+   expect(result).toBe(false)
+  })
+
+  it('should return false if username is not on max length range', () => {
+   const result = isValidUsername('a'.repeat(maxLength + 1))
+   expect(result).toBe(false)
+  })
+  
+  it('should return true if username is on min and max length range', () => {
+   expect(isValidUsername('a'.repeat(minLength))).toBe(true)
+   expect(isValidUsername('a'.repeat(maxLength))).toBe(true)
+  })
+
+  it('should return true if username is on min and max length range constraint', () => {
+   expect(isValidUsername('a'.repeat(minLength + 1))).toBe(true)
+   expect(isValidUsername('a'.repeat(maxLength - 1))).toBe(true)
+  })
+
+  it('should return false if username is null or undefined', () => {
+   expect(isValidUsername(null)).toBe(false)
+   expect(isValidUsername()).toBe(false)
+   expect(isValidUsername(1)).toBe(false)
+  })
+})
+
+describe('canDrive', () => {
+  it('should return an error if country code is invalid', () => {
+    expect(canDrive(20, 'BR')).toMatch(/invalid/i)
+  })
+
+  it.each([
+    {age: 15, countryCode: 'US', result: false},
+    {age: 16, countryCode: 'US', result: true},
+    {age: 20, countryCode: 'US', result: true},
+  ])('should return $result for age $age and country code $countryCode', ({age, countryCode, result}) => {
+    expect(canDrive(age, countryCode)).toBe(result)
   })
 })
