@@ -3,7 +3,7 @@
 import {getShippingQuote} from '../src/libs/shipping'
 
 import { vi } from "vitest"
-import { getShippingInfo, submitOrder } from '../src/mocking';
+import { getDiscount, getShippingInfo, submitOrder } from '../src/mocking';
 import { charge } from '../src/libs/payment';
 
 vi.mock('../src/libs/shipping');
@@ -42,7 +42,7 @@ describe('getShippingInfo', () => {
 describe('submitOrder', () => {
   const order = { totalAmount: 100 }
   const creditCard = { creditCardNumber: 5009 }
-  
+
   it('should call charge with correct arguments', async () => {
     vi.mocked(charge).mockResolvedValue({ status: 'success' });
     await submitOrder(order, creditCard);
@@ -60,5 +60,22 @@ describe('submitOrder', () => {
     const result = await submitOrder(order, creditCard);
     expect(result.success).toBe(false)
     expect(result.error).match(/error/i)
+  })
+})
+
+describe('getDiscount', () => {
+  it('should return 0 as discount when it\'s not Christmas', () => {
+    vi.setSystemTime('2024-12-23 00:00');
+    expect(getDiscount()).toBe(0)
+
+    vi.setSystemTime('2024-12-27 00:00');
+    expect(getDiscount()).toBe(0)
+  })
+  it('should return 0.2 as discount when it\'s Christmas', () => {
+    vi.setSystemTime('2024-12-25 00:00');
+    expect(getDiscount()).toBe(0.2)
+
+    vi.setSystemTime('2024-12-25 23:59');
+    expect(getDiscount()).toBe(0.2)
   })
 })
